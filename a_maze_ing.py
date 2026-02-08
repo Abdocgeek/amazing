@@ -286,6 +286,9 @@ def main(stdscr) -> None:
     maze = Maze(13, 15, entry, exit, perfect)
     maze.display(stdscr)
     maze.dfs(stdscr, entry[0], entry[1])
+    # Solver part :
+
+    # Prime Changes here
 
     stdscr.getch()
 
