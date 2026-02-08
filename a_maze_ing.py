@@ -58,6 +58,79 @@ class Maze:
         self.cells[self.entry[0]][self.entry[1]].visited = True
         self.visited_count += 1
 
+    def draw_path(self, stdscr, path, path_color) -> None:
+        """ Make in the path available in the map curses
+        Args:
+            stdscr: the master of the map
+            path: array has address of the solution
+            path_color: color of the path.
+        """
+
+        for place in path:
+            nx = place[1] * 4
+            ny = place[0] * 2
+            stdscr.addstr(ny + 1, nx + 1, "██", curses.color_pair(4))
+
+    def bfs_solver(self, entry, end) -> None:
+        """Solve maze using BFS.
+        Args:
+            start: Start position (row, column).
+            end: End position (row, column).
+
+        Returns:
+            List of coordinates forming the path, or None.
+        """
+        for row in self.cells:
+            for cell in row:
+                cell.visited = False
+        child = [entry]
+        parent = {entry: None}
+        self.cells[entry[0]][entry[1]].visited = True
+
+        while child:
+            curr = child.pop(0)
+            y, x = curr
+            if curr == end:
+                print("✓ FOUND END!")
+                path = []
+                node = end
+                while node is not None:
+                    path.append(node)
+                    node = parent[node]
+                path.reverse()
+
+                return path
+            neighbors = self.get_neighbors(y, x)
+
+            for ny, nx in neighbors:
+                if not self.cells[ny][nx].visited:
+                    self.cells[ny][nx].visited = True
+                    parent[(ny, nx)] = curr
+                    child.append((ny, nx))
+        return None
+
+    def get_neighbors(self, y, x) -> list:
+        """Get walkable neighbors (no walls blocking)."""
+        neighbors = []
+
+        # Check RIGHT - is there a wall blocking?
+        if not self.cells[y][x].walls['R'] and x + 1 < self.width:
+            neighbors.append((y, x + 1))
+
+        # Check DOWN
+        if not self.cells[y][x].walls['B'] and y + 1 < self.height:
+            neighbors.append((y + 1, x))
+
+        # Check LEFT
+        if not self.cells[y][x].walls['L'] and x - 1 >= 0:
+            neighbors.append((y, x - 1))
+
+        # Check UP
+        if not self.cells[y][x].walls['T'] and y - 1 >= 0:
+            neighbors.append((y - 1, x))
+
+        return neighbors
+
     def declare_logo(self) -> None:
         """Mark specific 42 in the center of the maze as logo cells.
 
@@ -144,7 +217,7 @@ class Maze:
                     self.cells[ny][nx].visited = True
                     self.visited_count += 1
             self.display(stdscr)
-            time.sleep(0.1)
+            time.sleep(0.005)
 
             if self.visited_count < self.cells_count:
                 self.dfs(stdscr, ny, nx)
@@ -278,16 +351,26 @@ def main(stdscr) -> None:
     curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
     curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
-    # random.seed(42)
+    random.seed(42)
     entry = (12, 1)
     # exit = (14, 12)
-    exit = (12, 14)
+    xit = (12, 14)
     perfect = False
-    maze = Maze(13, 15, entry, exit, perfect)
+    maze = Maze(15, 20, entry, xit, perfect)
     maze.display(stdscr)
     maze.dfs(stdscr, entry[0], entry[1])
-    # Solver part :
 
+    maze.display(stdscr)
+    time.sleep(0.5)
+    # Solver part :
+    """
+    curses.endwin()
+    import pudb; pudb.set_trace()
+    """
+    check = maze.bfs_solver(entry, xit)
+    maze.draw_path(stdscr, check, 4)
+    stdscr.addstr(12 * 2 + 1, 1 * 4 + 1, "██", curses.color_pair(4))
+    print(check)
     # Prime Changes here
 
     stdscr.getch()
