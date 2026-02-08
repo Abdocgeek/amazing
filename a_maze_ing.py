@@ -149,6 +149,51 @@ class Maze:
             if self.visited_count < self.cells_count:
                 self.dfs(stdscr, ny, nx)
 
+    def prime(self, stdscr, y, x):
+        choices = set()
+        while self.visited_count < self.cells_count:
+            if (x + 1 < self.width and not self.cells[y][x + 1].visited
+                    and not self.cells[y][x + 1].logo):
+                choices.add((y, x + 1))
+            if (y + 1 < self.height and not self.cells[y + 1][x].visited
+                    and not self.cells[y + 1][x].logo):
+                choices.add((y + 1, x))
+            if (y - 1 >= 0 and not self.cells[y - 1][x].visited
+                    and not self.cells[y - 1][x].logo):
+                choices.add((y - 1, x))
+            if (x - 1 >= 0 and not self.cells[y][x - 1].visited
+                    and not self.cells[y][x - 1].logo):
+                choices.add((y, x - 1))
+
+            # random.shuffle(choices)
+            if choices:
+                ny, nx = next(iter(choices))
+                choices.remove((ny, nx))
+
+                if ny - 1 >= 0 and self.cells[ny - 1][nx].visited:
+                    self.cells[ny][nx].walls["T"] = False
+                    self.cells[ny - 1][nx].walls["B"] = False
+                elif nx - 1 >= 0 and self.cells[ny][nx - 1].visited:
+                    self.cells[ny][nx].walls["L"] = False
+                    self.cells[ny][nx - 1].walls["R"] = False
+                elif nx + 1 < self.width and self.cells[ny][nx + 1].visited:
+                    self.cells[ny][nx].walls["R"] = False
+                    self.cells[ny][nx + 1].walls["L"] = False
+                elif ny + 1 < self.height and self.cells[ny + 1][nx].visited:
+                    self.cells[ny][nx].walls["B"] = False
+                    self.cells[ny + 1][nx].walls["T"] = False
+                # if self.perfect_maze:
+                #     self.cells[ny][nx].visited = True
+                #     self.visited_count += 1
+                # else:
+                #     if random.random() < 0.8:
+                self.cells[ny][nx].visited = True
+                self.visited_count += 1
+                self.display(stdscr)
+                x = nx
+                y = ny
+                time.sleep(0.05)
+
     def display(self, stdscr) -> None:
         """Display the current state of the maze.
 
@@ -283,9 +328,10 @@ def main(stdscr) -> None:
     # exit = (14, 12)
     exit = (12, 14)
     perfect = False
-    maze = Maze(13, 15, entry, exit, perfect)
+    maze = Maze(20, 20, entry, exit, perfect)
     maze.display(stdscr)
-    maze.dfs(stdscr, entry[0], entry[1])
+    # maze.dfs(stdscr, entry[0], entry[1])
+    maze.prime(stdscr, entry[0], entry[1])
     # Solver part :
 
     # Prime Changes here
