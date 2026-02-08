@@ -5,7 +5,7 @@ import time
 
 
 class Maze:
-     """A maze generator using depth-first search algorithm with visualization.
+    """A maze generator search algorithm with visualization.
 
     Attributes:
         width: Number of cells in horizontal direction.
@@ -15,9 +15,18 @@ class Maze:
         visited_count: Number of cells visited during generation.
         cells_count: Total number of cells in the maze.
         cells: 2D list of Cell objects representing the maze grid.
-    """
 
-    def __init__(self, height, width, entry, exit):
+        """
+
+    def __init__(self, height, width, entry, exit) -> None:
+        """Initialize a maze with given dimensions.
+
+        Args:
+            height: Number of cells in vertical direction.
+            width: Number of cells in horizontal direction.
+            entry: Entry point.
+            exit: Exit point.
+        """
         self.width = width
         self.height = height
         self.entry = entry
@@ -28,7 +37,12 @@ class Maze:
         self.generate_maze()
         self.declare_logo()
 
-    def generate_maze(self):
+    def generate_maze(self) -> None:
+        """Generate the initial maze grid with all walls intact.
+
+        Creates a grid of Cell objects with appropriate boundary information
+        and marks the entry cell as visited.
+        """
         x = 0
         y = 0
         for y in range(self.height):
@@ -43,7 +57,12 @@ class Maze:
         self.cells[self.entry[0]][self.entry[1]].visited = True
         self.visited_count += 1
 
-    def declare_logo(self):
+    def declare_logo(self) -> None:
+        """Mark specific 42 in the center of the maze as logo cells.
+
+        Creates a 42 pattern in the center of the maze by marking specific
+        cells. These cells will be excluded from the maze generation algorithm.
+        """
         center_width = math.floor(self.width / 2)
         center_height = math.floor(self.height / 2)
 
@@ -69,7 +88,19 @@ class Maze:
         self.cells[y][x + 5].logo = True
         self.cells[y][x + 4].logo = True
 
-    def dfs(self, stdscr, y, x):
+    def dfs(self, stdscr, y, x) -> None:
+        """Generate maze paths using depth-first search algorithm.
+
+        Recursively visits unvisited neighboring cells, removing walls between
+        them to create maze passages. The algorithm avoids logo cells and
+        visualizes the generation process.
+
+        Args:
+            stdscr: Curses window object for display.
+            y: Current row position.
+            x: Current column position.
+        """
+
         choices = []
         if (x + 1 < self.width and not self.cells[y][x + 1].visited
                 and not self.cells[y][x + 1].logo):
@@ -112,7 +143,15 @@ class Maze:
             if self.visited_count < self.cells_count:
                 self.dfs(stdscr, ny, nx)
 
-    def display(self, stdscr):
+    def display(self, stdscr) -> None:
+        """Display the current state of the maze.
+
+        Clears the screen and redraws all cells in the maze with their
+        current wall configuration and colors.
+
+        Args:
+            stdscr: Curses window object for display.
+        """
         stdscr.clear()
         for row in self.cells:
             for cell in row:
@@ -122,7 +161,28 @@ class Maze:
 
 
 class Cell:
-    def __init__(self, x, y, limits):
+    """Represents a single cell in the maze grid.
+
+    Attributes:
+        walls: Dictionary indicating presence of walls on each side
+               (keys: 'T', 'B', 'L', 'R' for top, bottom, left, right).
+        limits: Dictionary indicating if cell is at maze boundaries
+                (keys: 'T', 'B', 'L', 'R' for top, bottom, left, right).
+        x: Column position of the cell.
+        y: Row position of the cell.
+        logo: Whether this cell is part of the logo pattern.
+        visited: Whether this cell has been visited during maze generation.
+    """
+
+    def __init__(self, x, y, limits) -> None:
+        """Initialize a cell with position and boundary information.
+
+        Args:
+            x: Column position of the cell.
+            y: Row position of the cell.
+            limits: Dictionary indicating if cell is at maze boundaries
+                   (keys: 'T', 'B', 'L', 'R' for top, bottom, left, right).
+        """
         self.walls = {'T': True, 'B': True, 'L': True, 'R': True}
         self.limits = limits
         self.x = x
@@ -130,7 +190,20 @@ class Cell:
         self.logo = False
         self.visited = False
 
-    def draw(self, stdscr, cells, width, height, entry, exit):
+    def draw(self, stdscr, cells, width, height, entry, exit) -> None:
+        """Draw the cell on the screen with appropriate walls and colors.
+
+        Renders the cell as a 4x3 character block with walls represented by
+        block characters. Colors differ for logo cells, entry, and exit.
+
+        Args:
+            stdscr: Curses window object for display.
+            cells: 2D list of all cells in the maze.
+            width: Total width of the maze in cells.
+            height: Total height of the maze in cells.
+            entry: Entry point coordinates (row, column).
+            exit: Exit point coordinates (row, column).
+        """
 
         nx = self.x * 4
         ny = self.y * 2
@@ -184,7 +257,16 @@ class Cell:
             stdscr.addstr(ny + 1, nx + 1, "  ", curses.color_pair(1))
 
 
-def main(stdscr):
+def main(stdscr) -> None:
+    """Main function to initialize and run the maze generation.
+
+    Initializes curses color pairs, creates a maze instance, displays it,
+    and runs the depth-first search algorithm to generate the maze paths.
+    Waits for user input before exiting.
+
+    Args:
+        stdscr: Curses window object provided by curses.wrapper.
+    """
     curses.curs_set(0)
     curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
