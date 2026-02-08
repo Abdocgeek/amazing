@@ -92,8 +92,9 @@ class Maze:
             if ny - y < 0:
                 self.cells[ny][nx].walls["B"] = False
                 self.cells[y][x].walls["T"] = False
-            self.cells[ny][nx].visited = True
-            self.visited_count += 1
+            if random.random() < 0.8:
+                self.cells[ny][nx].visited = True
+                self.visited_count += 1
             self.display(stdscr)
             time.sleep(0.1)
 
