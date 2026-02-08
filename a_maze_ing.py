@@ -67,10 +67,15 @@ class Maze:
         """
 
         for place in path:
+
             nx = place[1] * 4
             ny = place[0] * 2
-            self.display(stdscr)
             stdscr.addstr(ny + 1, nx + 1, "██", curses.color_pair(4))
+            if prev:
+                ## fix the code here
+            time.sleep(0.02)
+            stdscr.refresh()
+            prev = place
 
     def bfs_solver(self, entry, end) -> None:
         """Solve maze using BFS.
@@ -92,7 +97,6 @@ class Maze:
             curr = child.pop(0)
             y, x = curr
             if curr == end:
-                print("✓ FOUND END!")
                 path = []
                 node = end
                 while node is not None:
@@ -218,7 +222,7 @@ class Maze:
                     self.cells[ny][nx].visited = True
                     self.visited_count += 1
             self.display(stdscr)
-            time.sleep(0.005)
+            time.sleep(0.01)
 
             if self.visited_count < self.cells_count:
                 self.dfs(stdscr, ny, nx)
@@ -364,7 +368,7 @@ def main(stdscr) -> None:
     maze.dfs(stdscr, entry[0], entry[1])
 
     maze.display(stdscr)
-    time.sleep(0.5)
+    # time.sleep(0.5)
     # Solver part :
     """
     curses.endwin()
@@ -372,8 +376,8 @@ def main(stdscr) -> None:
     """
     check = maze.bfs_solver(entry, xit)
     maze.draw_path(stdscr, check, 4)
-    #stdscr.addstr(12 * 2 + 1, 1 * 4 + 1, "██", curses.color_pair(4))
-    #print(check)
+    # stdscr.addstr(12 * 2 + 1, 1 * 4 + 1, "██", curses.color_pair(4))
+    # print(check)
     # Prime Changes here
 
     stdscr.getch()
