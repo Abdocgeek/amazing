@@ -69,6 +69,7 @@ class Maze:
         for place in path:
             nx = place[1] * 4
             ny = place[0] * 2
+            self.display(stdscr)
             stdscr.addstr(ny + 1, nx + 1, "██", curses.color_pair(4))
 
     def bfs_solver(self, entry, end) -> None:
@@ -268,6 +269,8 @@ class Cell:
         self.y = y
         self.logo = False
         self.visited = False
+        self.in_path = False
+
 
     def draw(self, stdscr, cells, width, height, entry, exit) -> None:
         """Draw the cell on the screen with appropriate walls and colors.
@@ -369,8 +372,8 @@ def main(stdscr) -> None:
     """
     check = maze.bfs_solver(entry, xit)
     maze.draw_path(stdscr, check, 4)
-    stdscr.addstr(12 * 2 + 1, 1 * 4 + 1, "██", curses.color_pair(4))
-    print(check)
+    #stdscr.addstr(12 * 2 + 1, 1 * 4 + 1, "██", curses.color_pair(4))
+    #print(check)
     # Prime Changes here
 
     stdscr.getch()
