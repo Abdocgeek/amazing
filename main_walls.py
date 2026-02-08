@@ -5,13 +5,14 @@ import time
 
 
 class Maze:
-    def __init__(self, height, width, entry, exit):
+    def __init__(self, height, width, entry, exit, perfect):
         self.width = width
         self.height = height
         self.entry = entry
         self.exit = exit
         self.visited_count = 0
         self.cells_count = width * height
+        self.perfect_maze = perfect
         self.cells = [[0 for x in range(width)] for y in range(height)]
         self.generate_maze()
         self.declare_logo()
@@ -92,9 +93,13 @@ class Maze:
             if ny - y < 0:
                 self.cells[ny][nx].walls["B"] = False
                 self.cells[y][x].walls["T"] = False
-            if random.random() < 0.8:
+            if self.perfect_maze:
                 self.cells[ny][nx].visited = True
                 self.visited_count += 1
+            else:
+                if random.random() < 0.8:
+                    self.cells[ny][nx].visited = True
+                    self.visited_count += 1
             self.display(stdscr)
             time.sleep(0.1)
 
@@ -183,7 +188,8 @@ def main(stdscr):
     entry = (12, 1)
     # exit = (14, 12)
     exit = (12, 14)
-    maze = Maze(13, 15, entry, exit)
+    perfect = True
+    maze = Maze(13, 15, entry, exit, perfect)
     maze.display(stdscr)
     maze.dfs(stdscr, entry[0], entry[1])
 
