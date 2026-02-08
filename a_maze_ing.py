@@ -89,6 +89,30 @@ class Maze:
         self.cells[y][x + 5].logo = True
         self.cells[y][x + 4].logo = True
 
+    def make_it_imperfect(self, stdscr):
+        i = 0
+        while i <= 50:
+            y = random.randrange(self.height)
+            x = random.randrange(self.width)
+            if (x + 1 < self.width and x - 1 >= 0
+                and y + 1 < self.height and y - 1 >= 0
+                and not self.cells[y][x].logo
+                and not self.cells[y + 1][x].logo
+                and not self.cells[y - 1][x].logo
+                and not self.cells[y][x - 1].logo
+                    and not self.cells[y][x + 1].logo):
+                if self.cells[y][x].walls['T']:
+                    self.cells[y][x].walls['T'] = False
+                elif self.cells[y][x].walls['B']:
+                    self.cells[y][x].walls['B'] = False
+                elif self.cells[y][x].walls['R']:
+                    self.cells[y][x].walls['R'] = False
+                elif self.cells[y][x].walls['L']:
+                    self.cells[y][x].walls['L'] = False
+                self.display(stdscr)
+                time.sleep(0.05)
+            i += 1
+
     def dfs(self, stdscr, y, x) -> None:
         """Generate maze paths using depth-first search algorithm.
 
@@ -136,15 +160,11 @@ class Maze:
             if ny - y < 0:
                 self.cells[ny][nx].walls["B"] = False
                 self.cells[y][x].walls["T"] = False
-            if self.perfect_maze:
-                self.cells[ny][nx].visited = True
-                self.visited_count += 1
-            else:
-                if random.random() < 0.8:
-                    self.cells[ny][nx].visited = True
-                    self.visited_count += 1
+
+            self.cells[ny][nx].visited = True
+            self.visited_count += 1
             self.display(stdscr)
-            time.sleep(0.1)
+            time.sleep(0.05)
 
             if self.visited_count < self.cells_count:
                 self.dfs(stdscr, ny, nx)
@@ -165,10 +185,10 @@ class Maze:
                     and not self.cells[y][x - 1].logo):
                 choices.add((y, x - 1))
 
-            # random.shuffle(choices)
             if choices:
-                ny, nx = next(iter(choices))
-                choices.remove((ny, nx))
+                selection = random.choice(list(choices))
+                ny, nx = selection
+                choices.remove(selection)
 
                 if ny - 1 >= 0 and self.cells[ny - 1][nx].visited:
                     self.cells[ny][nx].walls["T"] = False
@@ -182,17 +202,15 @@ class Maze:
                 elif ny + 1 < self.height and self.cells[ny + 1][nx].visited:
                     self.cells[ny][nx].walls["B"] = False
                     self.cells[ny + 1][nx].walls["T"] = False
-                # if self.perfect_maze:
-                #     self.cells[ny][nx].visited = True
-                #     self.visited_count += 1
-                # else:
-                #     if random.random() < 0.8:
+
                 self.cells[ny][nx].visited = True
                 self.visited_count += 1
                 self.display(stdscr)
                 x = nx
                 y = ny
                 time.sleep(0.05)
+            else:
+                return
 
     def display(self, stdscr) -> None:
         """Display the current state of the maze.
@@ -324,14 +342,15 @@ def main(stdscr) -> None:
     curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
     curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
     # random.seed(42)
-    entry = (12, 1)
-    # exit = (14, 12)
+    entry = (0, 0)
     exit = (12, 14)
     perfect = False
-    maze = Maze(20, 20, entry, exit, perfect)
+    maze = Maze(13, 15, entry, exit, perfect)
     maze.display(stdscr)
     # maze.dfs(stdscr, entry[0], entry[1])
     maze.prime(stdscr, entry[0], entry[1])
+    if not perfect:
+        maze.make_it_imperfect(stdscr)
     # Solver part :
 
     # Prime Changes here
