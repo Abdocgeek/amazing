@@ -65,15 +65,48 @@ class Maze:
             path: array has address of the solution
             path_color: color of the path.
         """
-
+        prev = None
         for place in path:
-
             nx = place[1] * 4
             ny = place[0] * 2
-            stdscr.addstr(ny + 1, nx + 1, "██", curses.color_pair(4))
+            stdscr.addstr(ny + 1, nx + 1, "██", curses.color_pair(path_color))
             if prev:
-                ## fix the code here
-            time.sleep(0.02)
+                if prev[0] == place[0]:
+                    if prev[1] < place[1]:
+                        stdscr.addstr(
+                                prev[0] * 2 + 1,
+                                prev[1] * 4 + 3, "█",
+                                curses.color_pair(path_color))
+                        stdscr.addstr(
+                                ny + 1,
+                                nx,
+                                "█",
+                                curses.color_pair(path_color))
+
+                    else:
+                        stdscr.addstr(
+                                prev[0] * 2 + 1,
+                                prev[1] * 4, "█",
+                                curses.color_pair(path_color))
+                        stdscr.addstr(
+                                ny + 1,
+                                nx + 3,
+                                "█",
+                                curses.color_pair(path_color))
+
+                elif prev[1] == place[1]:
+                    if prev[0] < place[0]:
+                        stdscr.addstr(
+                                prev[0] * 2 + 2,
+                                prev[1] * 4 + 1,
+                                "██", curses.color_pair(path_color))
+                    else:
+                        stdscr.addstr(
+                                prev[0] * 2,
+                                prev[1] * 4 + 1,
+                                "██", curses.color_pair(path_color))
+
+            time.sleep(0.01)
             stdscr.refresh()
             prev = place
 
@@ -167,7 +200,7 @@ class Maze:
         self.cells[y][x + 5].logo = True
         self.cells[y][x + 4].logo = True
 
-    def dfs(self, stdscr, y, x) -> None:
+    def dfs(self, stdscr, y, x, w_color) -> None:
         """Generate maze paths using depth-first search algorithm.
 
         Recursively visits unvisited neighboring cells, removing walls between
@@ -218,16 +251,17 @@ class Maze:
                 self.cells[ny][nx].visited = True
                 self.visited_count += 1
             else:
-                if random.random() < 0.8:
+                if random.random() < 0.06:
                     self.cells[ny][nx].visited = True
                     self.visited_count += 1
-            self.display(stdscr)
+            stdscr.refresh()
+            self.display(stdscr, w_color)
             time.sleep(0.01)
 
             if self.visited_count < self.cells_count:
-                self.dfs(stdscr, ny, nx)
+                self.dfs(stdscr, ny, nx, w_color)
 
-    def display(self, stdscr) -> None:
+    def display(self, stdscr, w_color) -> None:
         """Display the current state of the maze.
 
         Clears the screen and redraws all cells in the maze with their
@@ -236,11 +270,18 @@ class Maze:
         Args:
             stdscr: Curses window object for display.
         """
-        stdscr.clear()
+        # stdscr.clear()
         for row in self.cells:
             for cell in row:
-                cell.draw(stdscr, self.cells, self.width, self.height,
-                          self.entry, self.exit)
+                cell.draw(
+                        stdscr,
+                        self.cells,
+                        self.width,
+                        self.height,
+                        self.entry,
+                        self.exit,
+                        w_color
+                        )
         stdscr.refresh()
 
 
@@ -275,8 +316,7 @@ class Cell:
         self.visited = False
         self.in_path = False
 
-
-    def draw(self, stdscr, cells, width, height, entry, exit) -> None:
+    def draw(self, stdscr, cells, width, height, entry, exit, w_color) -> None:
         """Draw the cell on the screen with appropriate walls and colors.
 
         Renders the cell as a 4x3 character block with walls represented by
@@ -294,44 +334,44 @@ class Cell:
         nx = self.x * 4
         ny = self.y * 2
 
-        stdscr.addstr(ny, nx, "█", curses.color_pair(1))
-        stdscr.addstr(ny, nx + 3, "█", curses.color_pair(1))
-        stdscr.addstr(ny + 2, nx, "█", curses.color_pair(1))
-        stdscr.addstr(ny + 2, nx + 3, "█", curses.color_pair(1))
+        stdscr.addstr(ny, nx, "█", curses.color_pair(w_color))
+        stdscr.addstr(ny, nx + 3, "█", curses.color_pair(w_color))
+        stdscr.addstr(ny + 2, nx, "█", curses.color_pair(w_color))
+        stdscr.addstr(ny + 2, nx + 3, "█", curses.color_pair(w_color))
 
         if self.walls['T'] and ((self.y - 1 >= 0 and
                                 cells[self.y - 1][self.x].walls['B']) or
                                 self.y == 0):
-            stdscr.addstr(ny, nx + 1, "██", curses.color_pair(1))
+            stdscr.addstr(ny, nx + 1, "██", curses.color_pair(w_color))
         elif self.limits['T']:
-            stdscr.addstr(ny, nx + 1, "██", curses.color_pair(1))
+            stdscr.addstr(ny, nx + 1, "██", curses.color_pair(w_color))
         else:
-            stdscr.addstr(ny, nx + 1, "  ", curses.color_pair(1))
+            stdscr.addstr(ny, nx + 1, "  ", curses.color_pair(w_color))
 
         if self.walls['B']:
-            stdscr.addstr(ny + 2, nx + 1, "██", curses.color_pair(1))
+            stdscr.addstr(ny + 2, nx + 1, "██", curses.color_pair(w_color))
         elif self.limits['B']:
-            stdscr.addstr(ny + 2, nx + 1, "██", curses.color_pair(1))
+            stdscr.addstr(ny + 2, nx + 1, "██", curses.color_pair(w_color))
         else:
-            stdscr.addstr(ny + 2, nx + 1, "  ", curses.color_pair(1))
+            stdscr.addstr(ny + 2, nx + 1, "  ", curses.color_pair(w_color))
 
         if self.walls['L'] and ((self.x - 1 >= 0 and
                                 cells[self.y][self.x - 1].walls['R']) or
                                 self.x == 0):
-            stdscr.addstr(ny + 1, nx, "█", curses.color_pair(1))
+            stdscr.addstr(ny + 1, nx, "█", curses.color_pair(w_color))
         elif self.limits['L']:
-            stdscr.addstr(ny + 1, nx, "█", curses.color_pair(1))
+            stdscr.addstr(ny + 1, nx, "█", curses.color_pair(w_color))
         else:
-            stdscr.addstr(ny + 1, nx, " ", curses.color_pair(1))
+            stdscr.addstr(ny + 1, nx, " ", curses.color_pair(w_color))
 
         if self.walls['R'] and ((self.x + 1 < width and
                                 cells[self.y][self.x + 1].walls['L']) or
                                 self.x == width - 1):
-            stdscr.addstr(ny + 1, nx + 3, "█", curses.color_pair(1))
+            stdscr.addstr(ny + 1, nx + 3, "█", curses.color_pair(w_color))
         elif self.limits['R']:
-            stdscr.addstr(ny + 1, nx + 3, "█", curses.color_pair(1))
+            stdscr.addstr(ny + 1, nx + 3, "█", curses.color_pair(w_color))
         else:
-            stdscr.addstr(ny + 1, nx + 3, " ", curses.color_pair(1))
+            stdscr.addstr(ny + 1, nx + 3, " ", curses.color_pair(w_color))
 
         if self.logo:
             stdscr.addstr(ny + 1, nx + 1, "██", curses.color_pair(2))
@@ -345,43 +385,71 @@ class Cell:
 
 def main(stdscr) -> None:
     """Main function to initialize and run the maze generation.
-
     Initializes curses color pairs, creates a maze instance, displays it,
     and runs the depth-first search algorithm to generate the maze paths.
     Waits for user input before exiting.
-
     Args:
         stdscr: Curses window object provided by curses.wrapper.
     """
     curses.curs_set(0)
+    curses.init_pair(5, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
+    curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
-    random.seed(42)
+
+    curses.init_pair(6, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+    maze = None
     entry = (12, 1)
-    # exit = (14, 12)
-    xit = (12, 14)
+    exit_point = (1, 2)
+    height = 15
+    width = 20
     perfect = False
-    maze = Maze(15, 20, entry, xit, perfect)
-    maze.display(stdscr)
-    maze.dfs(stdscr, entry[0], entry[1])
+    d_color = 1
+    stdscr.clear()
+    maze = Maze(height, width, entry, exit_point, perfect)
+    maze.display(stdscr, d_color)
+    while True:
+        stdscr.addstr(height * 2 + 2, 0, "===========A_MAZ_ING========")
+        stdscr.addstr(height * 2 + 3, 0, "1. Generate")
+        stdscr.addstr(height * 2 + 3, 13, "2. Solve")
+        stdscr.addstr(height * 2 + 3, 21, "3. Color")
+        stdscr.addstr(height * 2 + 3, 31, "4. Quit")
+        stdscr.refresh()
 
-    maze.display(stdscr)
-    # time.sleep(0.5)
-    # Solver part :
-    """
-    curses.endwin()
-    import pudb; pudb.set_trace()
-    """
-    check = maze.bfs_solver(entry, xit)
-    maze.draw_path(stdscr, check, 4)
-    # stdscr.addstr(12 * 2 + 1, 1 * 4 + 1, "██", curses.color_pair(4))
-    # print(check)
-    # Prime Changes here
+        try:
+            choice = stdscr.getch()
+            if choice == ord('1'):
+                # stdscr.clear()
+                # random.seed(42)
+                maze = Maze(height, width, entry, exit_point, perfect)
+                maze.dfs(stdscr, entry[0], entry[1], d_color)
+                # maze.display(stdscr, d_color)
+                # choice = stdscr.getch()
 
-    stdscr.getch()
+            elif choice == ord('2'):
+                solution = maze.bfs_solver(entry, exit_point)
+                if solution:
+                    maze.draw_path(stdscr, solution, 4)
+                    # choice = stdscr.getch()
+
+            elif choice == ord('3'):
+                d_color = random.randint(1, 6)
+                maze.display(stdscr, d_color)
+                # choice = stdscr.getch()
+
+            elif choice == ord('4'):
+                break
+        except Exception as e:
+            stdscr.refresh()
+            stdscr.clear()
+            print(f"They said somthing wrong.{str(e)}")
 
 
 if __name__ == "__main__":
-    curses.wrapper(main)
+    try:
+        curses.wrapper(main)
+    except KeyboardInterrupt:
+        print("\nExited-_^.")
+    except Exception as e:
+        print(f"Error: {str(e)}")
