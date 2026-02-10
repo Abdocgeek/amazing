@@ -2,6 +2,7 @@ import curses
 import math
 import random
 import time
+import sys
 
 
 class Maze:
@@ -404,6 +405,58 @@ class Cell:
             stdscr.addstr(ny + 1, nx + 1, "  ", curses.color_pair(1))
 
 
+def parse_config(filename):
+    """ Parse your config file
+
+    Args:
+        filename: name of the configfile
+    """
+    config = {}
+
+    with open(filename, "r") as file:
+        for line in file:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" not in line:
+                raise ValueError(f"Invalid line: {line}")
+            key, value = line.split("=", 1)
+            config[key.strip()] = value.strip()
+    required = [
+        "WIDTH",
+        "HEIGHT",
+        "ENTRY",
+        "EXIT",
+        "OUTPUT_FILE",
+        "PERFECT",
+    ]
+
+    for key in required:
+        if key not in config:
+            raise ValueError(f"Missing config key: {key}")
+    width = int(config["WIDTH"])
+    height = int(config["HEIGHT"])
+    entry_x, entry_y = map(int, config["ENTRY"].split(","))
+    exit_x, exit_y = map(int, config["EXIT"].split(","))
+    perfect = config["PERFECT"].lower() == "true"
+    output_file = config["OUTPUT_FILE"]
+    if width <= 0 or height <= 0:
+        raise ValueError("WIDTH and HEIGHT must be positive")
+    if not (0 <= entry_x < width and 0 <= entry_y < height):
+        raise ValueError("ENTRY out of bounds")
+    if not (0 <= exit_x < width and 0 <= exit_y < height):
+        raise ValueError("EXIT out of bounds")
+
+    return {
+        "width": width,
+        "height": height,
+        "entry": (entry_x, entry_y),
+        "exit": (exit_x, exit_y),
+        "output_file": output_file,
+        "perfect": perfect,
+    }
+
+
 def main(stdscr) -> None:
     """Main function to initialize and run the maze generation.
     Initializes curses color pairs, creates a maze instance, displays it,
@@ -412,6 +465,14 @@ def main(stdscr) -> None:
     Args:
         stdscr: Curses window object provided by curses.wrapper.
     """
+    file = sys.argv
+    conf = parse_config(file[1])
+    entry = conf["entry"]
+    exit_point = conf["exit"]
+    height = conf["height"]
+    width = conf["width"]
+    perfect = conf["perfect"]
+
     curses.curs_set(0)
     curses.init_pair(5, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
@@ -421,11 +482,6 @@ def main(stdscr) -> None:
 
     curses.init_pair(6, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
     maze = None
-    entry = (12, 1)
-    exit_point = (1, 2)
-    height = 15
-    width = 20
-    perfect = False
     d_color = 1
     stdscr.clear()
     maze = Maze(height, width, entry, exit_point, perfect)
@@ -444,10 +500,7 @@ def main(stdscr) -> None:
                 # stdscr.clear()
                 # random.seed(42)
                 maze = Maze(height, width, entry, exit_point, perfect)
-                if not perfect:
-                    maze.make_it_imperfect(stdscr)
-                else:
-                    maze.dfs(stdscr, entry[0], entry[1], d_color)
+                maze.dfs(stdscr, entry[0], entry[1], d_color)
                 # maze.display(stdscr, d_color)
                 # choice = stdscr.getch()
 
@@ -472,8 +525,14 @@ def main(stdscr) -> None:
 
 if __name__ == "__main__":
     try:
+        file = sys.argv
+        conf = parse_config(file[len(file) - 1])
         curses.wrapper(main)
     except KeyboardInterrupt:
         print("\nExited-_^.")
+    except FileNotFoundError as e:
+        print(f"Error they said : {str(e)}")
+    except ValueError as e:
+        print(f'Error they said : {str(e)}')
     except Exception as e:
-        print(f"Error: make sure the srceen fit -_^. {str(e)}")
+        print(f"Error they said : {str(e)}")
