@@ -247,19 +247,40 @@ class Maze:
             if ny - y < 0:
                 self.cells[ny][nx].walls["B"] = False
                 self.cells[y][x].walls["T"] = False
-            if self.perfect_maze:
-                self.cells[ny][nx].visited = True
-                self.visited_count += 1
-            else:
-                if random.random() < 0.06:
-                    self.cells[ny][nx].visited = True
-                    self.visited_count += 1
+
+            self.cells[ny][nx].visited = True
+            self.visited_count += 1
             stdscr.refresh()
             self.display(stdscr, w_color)
             time.sleep(0.01)
 
             if self.visited_count < self.cells_count:
                 self.dfs(stdscr, ny, nx, w_color)
+
+    def make_it_imperfect(self, stdscr):
+        """ make it imperfect you see that """
+        i = 0
+        while i <= 50:
+            y = random.randrange(self.height)
+            x = random.randrange(self.width)
+            if (x + 1 < self.width and x - 1 >= 0
+                and y + 1 < self.height and y - 1 >= 0
+                and not self.cells[y][x].logo
+                and not self.cells[y + 1][x].logo
+                and not self.cells[y - 1][x].logo
+                and not self.cells[y][x - 1].logo
+                    and not self.cells[y][x + 1].logo):
+                if self.cells[y][x].walls['T']:
+                    self.cells[y][x].walls['T'] = False
+                elif self.cells[y][x].walls['B']:
+                    self.cells[y][x].walls['B'] = False
+                elif self.cells[y][x].walls['R']:
+                    self.cells[y][x].walls['R'] = False
+                elif self.cells[y][x].walls['L']:
+                    self.cells[y][x].walls['L'] = False
+                self.display(stdscr)
+                time.sleep(0.01)
+            i += 1
 
     def display(self, stdscr, w_color) -> None:
         """Display the current state of the maze.
@@ -423,7 +444,10 @@ def main(stdscr) -> None:
                 # stdscr.clear()
                 # random.seed(42)
                 maze = Maze(height, width, entry, exit_point, perfect)
-                maze.dfs(stdscr, entry[0], entry[1], d_color)
+                if not perfect:
+                    maze.make_it_imperfect(stdscr)
+                else:
+                    maze.dfs(stdscr, entry[0], entry[1], d_color)
                 # maze.display(stdscr, d_color)
                 # choice = stdscr.getch()
 
@@ -452,4 +476,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\nExited-_^.")
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"Error: make sure the srceen fit -_^. {str(e)}")
