@@ -258,6 +258,51 @@ class Maze:
             if self.visited_count < self.cells_count:
                 self.dfs(stdscr, ny, nx, w_color)
 
+    def prime(self, stdscr, y, x, w_color):
+        """Generate a maze using prime algo"""
+        choices = set()
+        while self.visited_count < self.cells_count:
+            if (x + 1 < self.width and not self.cells[y][x + 1].visited
+                    and not self.cells[y][x + 1].logo):
+                choices.add((y, x + 1))
+            if (y + 1 < self.height and not self.cells[y + 1][x].visited
+                    and not self.cells[y + 1][x].logo):
+                choices.add((y + 1, x))
+            if (y - 1 >= 0 and not self.cells[y - 1][x].visited
+                    and not self.cells[y - 1][x].logo):
+                choices.add((y - 1, x))
+            if (x - 1 >= 0 and not self.cells[y][x - 1].visited
+                    and not self.cells[y][x - 1].logo):
+                choices.add((y, x - 1))
+
+            if choices:
+                selection = random.choice(list(choices))
+                ny, nx = selection
+                choices.remove(selection)
+
+                if ny - 1 >= 0 and self.cells[ny - 1][nx].visited:
+                    self.cells[ny][nx].walls["T"] = False
+                    self.cells[ny - 1][nx].walls["B"] = False
+                elif nx - 1 >= 0 and self.cells[ny][nx - 1].visited:
+                    self.cells[ny][nx].walls["L"] = False
+                    self.cells[ny][nx - 1].walls["R"] = False
+                elif nx + 1 < self.width and self.cells[ny][nx + 1].visited:
+                    self.cells[ny][nx].walls["R"] = False
+                    self.cells[ny][nx + 1].walls["L"] = False
+                elif ny + 1 < self.height and self.cells[ny + 1][nx].visited:
+                    self.cells[ny][nx].walls["B"] = False
+                    self.cells[ny + 1][nx].walls["T"] = False
+
+                self.cells[ny][nx].visited = True
+                self.visited_count += 1
+                stdscr.refresh()
+                self.display(stdscr, w_color)
+                x = nx
+                y = ny
+                time.sleep(0.01)
+            else:
+                return
+
     def make_it_imperfect(self, stdscr):
         """ make it imperfect you see that """
         i = 0
@@ -429,6 +474,8 @@ def parse_config(filename):
         "EXIT",
         "OUTPUT_FILE",
         "PERFECT",
+        "ALGO",
+        "SEED"
     ]
 
     for key in required:
@@ -440,13 +487,20 @@ def parse_config(filename):
     exit_x, exit_y = map(int, config["EXIT"].split(","))
     perfect = config["PERFECT"].lower() == "true"
     output_file = config["OUTPUT_FILE"]
+    algo = config["ALGO"]
+    seed = config["SEED"]
     if width <= 0 or height <= 0:
         raise ValueError("WIDTH and HEIGHT must be positive")
     if not (0 <= entry_x < width and 0 <= entry_y < height):
         raise ValueError("ENTRY out of bounds")
     if not (0 <= exit_x < width and 0 <= exit_y < height):
         raise ValueError("EXIT out of bounds")
-
+    if algo not in ['DFS', 'PRIME']:
+        raise ValueError("choose one algo between DFS or PRIME.")
+    try:
+        seed = int(seed)
+    except Exception:
+        raise ValueError("Make sure seed is a number.")
     return {
         "width": width,
         "height": height,
@@ -454,6 +508,8 @@ def parse_config(filename):
         "exit": (exit_x, exit_y),
         "output_file": output_file,
         "perfect": perfect,
+        "algo": algo,
+        "seed": seed
     }
 
 
@@ -472,6 +528,8 @@ def main(stdscr) -> None:
     height = conf["height"]
     width = conf["width"]
     perfect = conf["perfect"]
+    algo = conf["algo"]
+    seed = conf["seed"]
 
     curses.curs_set(0)
     curses.init_pair(5, curses.COLOR_RED, curses.COLOR_BLACK)
@@ -498,9 +556,14 @@ def main(stdscr) -> None:
             choice = stdscr.getch()
             if choice == ord('1'):
                 # stdscr.clear()
-                # random.seed(42)
-                maze = Maze(height, width, entry, exit_point, perfect)
-                maze.dfs(stdscr, entry[0], entry[1], d_color)
+                if seed:
+                    random.seed(seed)
+                if (algo == "DFS"):
+                    maze = Maze(height, width, entry, exit_point, perfect)
+                    maze.dfs(stdscr, entry[0], entry[1], d_color)
+                elif (algo == "PRIME"):
+                    maze = Maze(height, width, entry, exit_point, perfect)
+                    maze.prime(stdscr, entry[0], entry[1], d_color)
                 # maze.display(stdscr, d_color)
                 # choice = stdscr.getch()
 
