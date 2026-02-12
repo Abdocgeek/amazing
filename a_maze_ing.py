@@ -37,7 +37,8 @@ class Maze:
         self.perfect_maze = perfect
         self.cells = [[0 for x in range(width)] for y in range(height)]
         self.generate_maze()
-        self.declare_logo()
+        if width >= 7 and height >= 7:
+            self.declare_logo()
 
     def generate_maze(self) -> None:
         """Generate the initial maze grid with all walls intact.
@@ -303,10 +304,10 @@ class Maze:
             else:
                 return
 
-    def make_it_imperfect(self, stdscr):
+    def make_it_imperfect(self, stdscr, w_color):
         """ make it imperfect you see that """
         i = 0
-        while i <= 50:
+        while i <= 33.33:
             y = random.randrange(self.height)
             x = random.randrange(self.width)
             if (x + 1 < self.width and x - 1 >= 0
@@ -324,7 +325,7 @@ class Maze:
                     self.cells[y][x].walls['R'] = False
                 elif self.cells[y][x].walls['L']:
                     self.cells[y][x].walls['L'] = False
-                self.display(stdscr)
+                self.display(stdscr, w_color)
                 time.sleep(0.01)
             i += 1
 
@@ -349,6 +350,7 @@ class Maze:
                         self.exit,
                         w_color
                         )
+
         stdscr.refresh()
 
 
@@ -490,13 +492,16 @@ def parse_config(filename):
     algo = config["ALGO"]
     seed = config["SEED"]
     if width <= 0 or height <= 0:
-        raise ValueError("WIDTH and HEIGHT must be positive")
+        raise ValueError("WIDTH and HEIGHT must be positive grater then 0.")
     if not (0 <= entry_x < width and 0 <= entry_y < height):
         raise ValueError("ENTRY out of bounds")
     if not (0 <= exit_x < width and 0 <= exit_y < height):
         raise ValueError("EXIT out of bounds")
     if algo not in ['DFS', 'PRIME']:
         raise ValueError("choose one algo between DFS or PRIME.")
+    if entry_x == exit_x and entry_y == exit_y:
+        raise TypeError(
+            "Entry and Exit must be separated or make the maze abit bigger")
     try:
         seed = int(seed)
     except Exception:
@@ -564,6 +569,9 @@ def main(stdscr) -> None:
                 elif (algo == "PRIME"):
                     maze = Maze(height, width, entry, exit_point, perfect)
                     maze.prime(stdscr, entry[0], entry[1], d_color)
+                if not perfect:
+                    maze.make_it_imperfect(stdscr, d_color)
+
                 # maze.display(stdscr, d_color)
                 # choice = stdscr.getch()
 
@@ -597,5 +605,5 @@ if __name__ == "__main__":
         print(f"Error they said : {str(e)}")
     except ValueError as e:
         print(f'Error they said : {str(e)}')
-    except Exception as e:
-        print(f"Error they said : {str(e)}")
+    except curses.error as e:
+        print(f"Error they said hello : {str(e)}")
