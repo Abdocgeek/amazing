@@ -552,9 +552,9 @@ def main(stdscr) -> None:
     while True:
         stdscr.addstr(height * 2 + 2, 0, "===========A_MAZ_ING========")
         stdscr.addstr(height * 2 + 3, 0, "1. Generate")
-        stdscr.addstr(height * 2 + 3, 13, "2. Solve")
-        stdscr.addstr(height * 2 + 3, 21, "3. Color")
-        stdscr.addstr(height * 2 + 3, 31, "4. Quit")
+        stdscr.addstr(height * 2 + 4, 0, "2. Solve")
+        stdscr.addstr(height * 2 + 5, 0, "3. Color")
+        stdscr.addstr(height * 2 + 6, 0, "4. Quit")
         stdscr.refresh()
 
         try:
