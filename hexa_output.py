@@ -16,6 +16,6 @@ def create_output_file(cells, entry, exit):
                     total += 8
                 file.write(hexa[total])
             file.write('\n')
-        
+
         file.write(f"\n{entry[0]},{entry[1]}\n")
         file.write(f"{exit[0]},{exit[1]}")

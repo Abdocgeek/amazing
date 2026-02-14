@@ -532,7 +532,7 @@ def parse_config(filename):
     algo = config["ALGO"]
     seed = config["SEED"]
     if width <= 0 or height <= 0:
-        raise ValueError("WIDTH and HEIGHT must be positive grater then 0.")
+        raise ValueError("WIDTH and HEIGHT must be positive greater then 0.")
     if not (0 <= entry_x < width and 0 <= entry_y < height):
         raise ValueError("ENTRY out of bounds")
     if not (0 <= exit_x < width and 0 <= exit_y < height):
@@ -551,8 +551,8 @@ def parse_config(filename):
     return {
         "width": width,
         "height": height,
-        "entry": (entry_x, entry_y),
-        "exit": (exit_x, exit_y),
+        "entry": (entry_y, entry_x),
+        "exit": (exit_y, exit_x),
         "output_file": output_file,
         "perfect": perfect,
         "algo": algo,
@@ -640,9 +640,12 @@ def main(stdscr) -> None:
 
 if __name__ == "__main__":
     try:
-        file = sys.argv
-        conf = parse_config(file[len(file) - 1])
-        curses.wrapper(main)
+        if (len(sys.argv) > 1):
+            file = sys.argv
+            conf = parse_config(file[len(file) - 1])
+            curses.wrapper(main)
+        else:
+            print("Error: Config file is missing!")
     except KeyboardInterrupt:
         print("\nExited-_^.")
     except FileNotFoundError as e:
