@@ -4,6 +4,7 @@ import random
 import time
 import sys
 from hexa_output import create_output_file
+# from mazegen import MazeGenerator
 
 
 class Maze:
@@ -541,10 +542,12 @@ def parse_config(filename):
     if entry_x == exit_x and entry_y == exit_y:
         raise TypeError(
             "Entry and Exit must be separated or make the maze abit bigger")
-    try:
-        seed = int(seed)
-    except Exception:
-        raise ValueError("Make sure seed is a number.")
+    # if not isinstance(seed, int):
+    #     raise(ValueError("oiahsoiajs"))
+    # try:
+    seed = int(seed)
+    # except Exception:
+    #     raise ValueError("Make sure seed is a number.")
     return {
         "width": width,
         "height": height,
@@ -589,7 +592,6 @@ def main(stdscr) -> None:
     stdscr.clear()
     maze = Maze(height, width, entry, exit_point, perfect)
     maze.display(stdscr, maze_color)
-    create_output_file(maze.cells)
     while True:
         stdscr.addstr(height * 2 + 2, 0, "===========A_MAZ_ING========")
         stdscr.addstr(height * 2 + 3, 0, "1. Generate")
@@ -629,6 +631,7 @@ def main(stdscr) -> None:
 
             elif choice == ord('4'):
                 break
+            create_output_file(maze.cells, entry, exit_point)
         except Exception as e:
             stdscr.refresh()
             stdscr.clear()
