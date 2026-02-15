@@ -1,8 +1,8 @@
-def create_output_file(cells, entry, exit):
+def create_output_file(file, cells, entry, exit, solution):
     total = 0
     hexa = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'A', 'B', 'C', 'D', 'E', 'F']
-    with open("output_maze.txt", "w") as file:
+    with open(file, "w") as file:
         for row in cells:
             for cell in row:
                 total = 0
@@ -17,5 +17,22 @@ def create_output_file(cells, entry, exit):
                 file.write(hexa[total])
             file.write('\n')
 
-        file.write(f"\n{entry[0]},{entry[1]}\n")
-        file.write(f"{exit[0]},{exit[1]}")
+        file.write(f"\n{entry[1]},{entry[0]}\n")
+        file.write(f"{exit[1]},{exit[0]}\n")
+
+        x = entry[1]
+        y = entry[0]
+        for cell in solution:
+            nx = cell[1]
+            ny = cell[0]
+            if nx - x > 0:
+                file.write('E')
+            elif nx - x < 0:
+                file.write('W')
+            elif ny - y > 0:
+                file.write('S')
+            elif ny - y < 0:
+                file.write('N')
+            x = nx
+            y = ny
+        file.write('\n')
