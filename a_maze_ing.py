@@ -308,7 +308,6 @@ class Maze:
 
     def make_it_imperfect(self, stdscr, w_color):
         """ make it imperfect you see that """
-        i = 0
         for y in range(self.height):
             for x in range(self.width):
                 if (x + 1 < self.width and x - 1 >= 0
@@ -319,20 +318,30 @@ class Maze:
                     and not self.cells[y + 1][x].logo
                         and not self.cells[y - 1][x].logo):
                     if (self.cells[y][x].walls['T']
-                        and (self.cells[y][x + 1].walls['T']
-                             and self.cells[y][x - 1].walls['T'])):
+                        and ((self.cells[y][x + 1].walls['T']
+                              or self.cells[y - 1][x + 1].walls['L'])
+                        and (self.cells[y][x - 1].walls['T']
+                             or self.cells[y - 1][x - 1].walls['R']))):
                         self.cells[y][x].walls['T'] = False
                         self.cells[y - 1][x].walls['B'] = False
 
                     if (self.cells[y][x].walls['L']
-                        and (self.cells[y + 1][x].walls['L']
-                             and self.cells[y - 1][x].walls['L'])):
+                        and ((self.cells[y + 1][x].walls['L']
+                              or self.cells[y + 1][x - 1].walls['T'])
+                        and (self.cells[y - 1][x].walls['L']
+                             or self.cells[y - 1][x - 1].walls['B']))):
                         self.cells[y][x].walls['L'] = False
                         self.cells[y][x - 1].walls['R'] = False
 
                     self.display(stdscr, w_color)
-                    # time.sleep(0.01)
-                i += 1
+                # if (x == self.width - 1 and not self.cells[y][x - 1].logo
+                #     and self.cells[y][x].walls['T']
+                #     and (self.cells[y][x - 1].walls['T']
+                #          or self.cells[y - 1][x - 1].walls['R'])):
+                #     self.cells[y][x].walls['T'] = False
+                #     self.cells[y - 1][x].walls['B'] = False
+                #     self.display(stdscr, w_color)
+                # time.sleep(0.1)
 
     def display(self, stdscr, maze_color) -> None:
         """Display the current state of the maze.
@@ -487,7 +496,7 @@ class Cell:
         elif self.x == entry[1] and self.y == entry[0]:
             stdscr.addstr(ny + 1, nx + 1, "██", curses.color_pair(3))
         elif self.x == exit[1] and self.y == exit[0]:
-            stdscr.addstr(ny + 1, nx + 1, "██", curses.color_pair(4))
+            stdscr.addstr(ny + 1, nx + 1, "██", curses.color_pair(5))
         else:
             stdscr.addstr(ny + 1, nx + 1, "  ", curses.color_pair(1))
 
