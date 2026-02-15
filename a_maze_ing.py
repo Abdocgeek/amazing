@@ -603,9 +603,9 @@ def main(stdscr) -> None:
     maze.display(stdscr, maze_color)
     while True:
         stdscr.addstr(height * 2 + 2, 0, "===========A_MAZ_ING========")
-        stdscr.addstr(height * 2 + 3, 0, "1. Generate")
-        stdscr.addstr(height * 2 + 4, 0, "2. Solve")
-        stdscr.addstr(height * 2 + 5, 0, "3. Color")
+        stdscr.addstr(height * 2 + 3, 0, "1. Generate/Re-generate a new maze")
+        stdscr.addstr(height * 2 + 4, 0, "2. Show/Hide solution")
+        stdscr.addstr(height * 2 + 5, 0, "3. Change maze's colors")
         stdscr.addstr(height * 2 + 6, 0, "4. Quit")
         stdscr.refresh()
 
