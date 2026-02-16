@@ -1,7 +1,6 @@
 .PHONY: install run debug clean lint lint-strict
 
 install:
-	pip install --upgrade pip
 	pip install -r requirements.txt
 
 run:
