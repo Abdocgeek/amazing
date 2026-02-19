@@ -243,7 +243,7 @@ class MazeGenerator:
             y: Starting row position.
             x: Starting column position.
         """
-        choices: set = set()
+        choices: set[Tuple[int, int]] = set()
         while self.visited_count < self.cells_count:
             if (x + 1 < self.width and not self.cells[y][x + 1].visited
                     and not self.cells[y][x + 1].logo):

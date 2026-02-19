@@ -88,7 +88,6 @@ class Cell:
         nx = self.x * 4
         ny = self.y * 2
 
-        # Draw the 4 corners of the cell
         stdscr.addstr(ny, nx, "█",
                       curses.color_pair(maze_color['Walls']))
         stdscr.addstr(ny, nx + 3, "█",
@@ -98,7 +97,6 @@ class Cell:
         stdscr.addstr(ny + 2, nx + 3, "█",
                       curses.color_pair(maze_color['Walls']))
 
-        # TOP wall - Check for solution path connection first
         if (self.y - 1 >= 0 and cells[self.y - 1][self.x].solution
                 and self.solution and not self.walls['T']):
             stdscr.addstr(ny, nx + 1, "██",
@@ -115,7 +113,6 @@ class Cell:
             stdscr.addstr(ny, nx + 1, "  ",
                           curses.color_pair(maze_color['Walls']))
 
-        # BOTTOM wall - Check for solution path connection first
         if (self.y + 1 < height and cells[self.y + 1][self.x].solution
                 and self.solution and not self.walls['B']):
             stdscr.addstr(ny + 2, nx + 1, "██",
@@ -130,7 +127,6 @@ class Cell:
             stdscr.addstr(ny + 2, nx + 1, "  ",
                           curses.color_pair(maze_color['Walls']))
 
-        # LEFT wall - Check for solution path connection first
         if (self.x - 1 >= 0 and cells[self.y][self.x - 1].solution
                 and self.solution and not self.walls['L']):
             stdscr.addstr(ny + 1, nx, "█",
@@ -147,7 +143,6 @@ class Cell:
             stdscr.addstr(ny + 1, nx, " ",
                           curses.color_pair(maze_color['Walls']))
 
-        # RIGHT wall - Check for solution path connection first
         if (self.x + 1 < width and cells[self.y][self.x + 1].solution
                 and self.solution and not self.walls['R']):
             stdscr.addstr(ny + 1, nx + 3, "█",
@@ -164,7 +159,6 @@ class Cell:
             stdscr.addstr(ny + 1, nx + 3, " ",
                           curses.color_pair(maze_color['Walls']))
 
-        # CENTER of the cell - Draw logo, entry, exit, solution, or empty
         if self.logo:
             stdscr.addstr(ny + 1, nx + 1, "██",
                           curses.color_pair(maze_color['Logo']))
@@ -350,19 +344,15 @@ class Maze:
         """
         neighbors = []
 
-        # Check RIGHT - is there a wall blocking?
         if not self.cells[y][x].walls['R'] and x + 1 < self.width:
             neighbors.append((y, x + 1))
 
-        # Check DOWN
         if not self.cells[y][x].walls['B'] and y + 1 < self.height:
             neighbors.append((y + 1, x))
 
-        # Check LEFT
         if not self.cells[y][x].walls['L'] and x - 1 >= 0:
             neighbors.append((y, x - 1))
 
-        # Check UP
         if not self.cells[y][x].walls['T'] and y - 1 >= 0:
             neighbors.append((y - 1, x))
 
@@ -555,14 +545,6 @@ class Maze:
                         self.cells[y][x - 1].walls['R'] = False
 
                     self.display(stdscr, maze_color)
-                # if (x == self.width - 1 and not self.cells[y][x - 1].logo
-                #     and self.cells[y][x].walls['T']
-                #     and (self.cells[y][x - 1].walls['T']
-                #          or self.cells[y - 1][x - 1].walls['R'])):
-                #     self.cells[y][x].walls['T'] = False
-                #     self.cells[y - 1][x].walls['B'] = False
-                #     self.display(stdscr, w_color)
-                # time.sleep(0.1)
 
     def display(
             self,
@@ -650,11 +632,7 @@ def parse_config(filename: str) -> Dict[str, Any]:
     if entry_x == exit_x and entry_y == exit_y:
         raise TypeError(
             "Entry and Exit must be separated or make the maze abit bigger")
-    # if not isinstance(seed, int):
-    #     raise(ValueError("oiahsoiajs"))
-    # try:
-    # except Exception:
-    #     raise ValueError("Make sure seed is a number.")
+
     return {
         "width": width,
         "height": height,
@@ -747,22 +725,17 @@ def main(stdscr: curses.window) -> None:
                 if not perfect:
                     maze.make_it_imperfect(stdscr, maze_color)
 
-                # maze.display(stdscr, d_color)
-                # choice = stdscr.getch()
-
             elif choice == ord('2'):
                 solution = maze.bfs_solver(entry, exit_point)
                 if solution:
                     maze.show_hide_solution_path(stdscr, solution, maze_color,
                                                  show_solution)
                     show_solution = not show_solution
-                # choice = stdscr.getch()
 
             elif choice == ord('3'):
                 rndm = random.randint(1, 6)
                 maze_color = maze_colors[str(rndm)]
                 maze.display(stdscr, maze_color)
-                # choice = stdscr.getch()
 
             elif choice == ord('4'):
                 break
