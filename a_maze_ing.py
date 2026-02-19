@@ -269,7 +269,6 @@ class Maze:
             path_color: color of the path.
             show: boolean variable to hide the solution
         """
-        # prev = None
         if show:
             for place in path:
                 nx = place[1]
@@ -283,47 +282,6 @@ class Maze:
                 ny = place[0]
                 self.cells[ny][nx].solution = False
             self.display(stdscr, maze_color)
-            # stdscr.addstr(ny + 1, nx + 1, "██",
-            # curses.color_pair(path_color))
-            # if prev:
-            #     if prev[0] == place[0]:
-            #         if prev[1] < place[1]:
-            #             stdscr.addstr(
-            #                     prev[0] * 2 + 1,
-            #                     prev[1] * 4 + 3, "█",
-            #                     curses.color_pair(path_color))
-            #             stdscr.addstr(
-            #                     ny + 1,
-            #                     nx,
-            #                     "█",
-            #                     curses.color_pair(path_color))
-
-            #         else:
-            #             stdscr.addstr(
-            #                     prev[0] * 2 + 1,
-            #                     prev[1] * 4, "█",
-            #                     curses.color_pair(path_color))
-            #             stdscr.addstr(
-            #                     ny + 1,
-            #                     nx + 3,
-            #                     "█",
-            #                     curses.color_pair(path_color))
-
-            #     elif prev[1] == place[1]:
-            #         if prev[0] < place[0]:
-            #             stdscr.addstr(
-            #                     prev[0] * 2 + 2,
-            #                     prev[1] * 4 + 1,
-            #                     "██", curses.color_pair(path_color))
-            #         else:
-            #             stdscr.addstr(
-            #                     prev[0] * 2,
-            #                     prev[1] * 4 + 1,
-            #                     "██", curses.color_pair(path_color))
-
-            # time.sleep(0.01)
-            # stdscr.refresh()
-            # prev = place
 
     def bfs_solver(
             self,
