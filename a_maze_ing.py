@@ -66,6 +66,7 @@ class Cell:
             stdscr: curses.window,
             cells: List[List["Cell"]],
             width: int,
+            height: int,
             entry: Tuple[int, int],
             exit: Tuple[int, int],
             maze_color: Dict[str, int]
@@ -87,6 +88,7 @@ class Cell:
         nx = self.x * 4
         ny = self.y * 2
 
+        # Draw the 4 corners of the cell
         stdscr.addstr(ny, nx, "█",
                       curses.color_pair(maze_color['Walls']))
         stdscr.addstr(ny, nx + 3, "█",
@@ -96,8 +98,9 @@ class Cell:
         stdscr.addstr(ny + 2, nx + 3, "█",
                       curses.color_pair(maze_color['Walls']))
 
+        # TOP wall - Check for solution path connection first
         if (self.y - 1 >= 0 and cells[self.y - 1][self.x].solution
-                and self.solution):
+                and self.solution and not self.walls['T']):
             stdscr.addstr(ny, nx + 1, "██",
                           curses.color_pair(maze_color['Solution']))
         elif self.walls['T'] and ((self.y - 1 >= 0 and
@@ -112,7 +115,12 @@ class Cell:
             stdscr.addstr(ny, nx + 1, "  ",
                           curses.color_pair(maze_color['Walls']))
 
-        if self.walls['B']:
+        # BOTTOM wall - Check for solution path connection first
+        if (self.y + 1 < height and cells[self.y + 1][self.x].solution
+                and self.solution and not self.walls['B']):
+            stdscr.addstr(ny + 2, nx + 1, "██",
+                          curses.color_pair(maze_color['Solution']))
+        elif self.walls['B']:
             stdscr.addstr(ny + 2, nx + 1, "██",
                           curses.color_pair(maze_color['Walls']))
         elif self.limits['B']:
@@ -122,8 +130,9 @@ class Cell:
             stdscr.addstr(ny + 2, nx + 1, "  ",
                           curses.color_pair(maze_color['Walls']))
 
+        # LEFT wall - Check for solution path connection first
         if (self.x - 1 >= 0 and cells[self.y][self.x - 1].solution
-                and self.solution):
+                and self.solution and not self.walls['L']):
             stdscr.addstr(ny + 1, nx, "█",
                           curses.color_pair(maze_color['Solution']))
         elif self.walls['L'] and ((self.x - 1 >= 0 and
@@ -138,8 +147,9 @@ class Cell:
             stdscr.addstr(ny + 1, nx, " ",
                           curses.color_pair(maze_color['Walls']))
 
+        # RIGHT wall - Check for solution path connection first
         if (self.x + 1 < width and cells[self.y][self.x + 1].solution
-                and self.solution):
+                and self.solution and not self.walls['R']):
             stdscr.addstr(ny + 1, nx + 3, "█",
                           curses.color_pair(maze_color['Solution']))
         elif self.walls['R'] and ((self.x + 1 < width and
@@ -154,11 +164,8 @@ class Cell:
             stdscr.addstr(ny + 1, nx + 3, " ",
                           curses.color_pair(maze_color['Walls']))
 
+        # CENTER of the cell - Draw logo, entry, exit, solution, or empty
         if self.logo:
-            # if maze_color - 1 > 0:
-            #     logo_color = maze_color - 1
-            # else:
-            #     logo_color = maze_color + 1
             stdscr.addstr(ny + 1, nx + 1, "██",
                           curses.color_pair(maze_color['Logo']))
         elif self.x == entry[1] and self.y == entry[0]:
@@ -577,6 +584,7 @@ class Maze:
                         stdscr,
                         self.cells,
                         self.width,
+                        self.height,
                         self.entry,
                         self.exit,
                         maze_color
