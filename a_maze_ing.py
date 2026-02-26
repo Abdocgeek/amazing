@@ -593,9 +593,14 @@ def parse_config(filename: str) -> Dict[str, Any]:
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
-            if "=" not in line:
+            if "=" not in line or line.count("=") != 1:
                 raise ValueError(f"Invalid line: {line}")
-            key, value = line.split("=", 1)
+            key, value = line.split("=")
+            if " " in key or "\t" in key:
+                raise ValueError("Key cannot contain spaces")
+            if " " in value or "\t" in value:
+                raise ValueError("Value cannot contain spaces")
+
             config[key.strip()] = value.strip()
     required = [
         "WIDTH",
@@ -615,6 +620,10 @@ def parse_config(filename: str) -> Dict[str, Any]:
     exit_x, exit_y = map(int, config["EXIT"].split(","))
     perfect = config["PERFECT"].lower()
     output_file = config["OUTPUT_FILE"]
+    tmp_file = output_file.split(".", 1)
+    if (len(tmp_file) != 2 or tmp_file[1] != "txt"):
+        raise ValueError("OUT_PUT file must be txt extention.")
+
     if "ALGO" not in config.keys():
         algo = "DFS"
     else:
@@ -720,10 +729,8 @@ def main(stdscr: curses.window) -> None:
         maze.prime(stdscr, entry[0], entry[1], maze_color)
     if perfect == "false":
         maze.make_it_imperfect(stdscr, maze_color)
-    
     solution = maze.bfs_solver(entry, exit_point)
-    create_output_file(output_file, maze.cells, entry,
-                               exit_point, solution)
+    create_output_file(output_file, maze.cells, entry, exit_point, solution)
 
     while True:
         stdscr.addstr(height * 2 + 2, 0, "===========A_MAZ_ING========")
