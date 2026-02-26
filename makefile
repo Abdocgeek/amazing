@@ -7,7 +7,7 @@ run:
 	python a_maze_ing.py config.txt
 
 debug:
-	python -m pdb a_maze_ing.py config.txt
+	python -m pudb a_maze_ing.py config.txt
 
 clean:
 	find . -type f -name '*.pyc' -delete

@@ -196,7 +196,6 @@ class Maze:
             width: int,
             entry: Tuple[int, int],
             exit: Tuple[int, int],
-            perfect: bool
             ) -> None:
         """Initialize a maze with given dimensions.
 
@@ -213,7 +212,6 @@ class Maze:
         self.exit = exit
         self.visited_count = 0
         self.cells_count = width * height
-        self.perfect_maze = perfect
         self.cells: List[List[Cell]] = [
                 [
                     Cell(
@@ -606,8 +604,6 @@ def parse_config(filename: str) -> Dict[str, Any]:
         "EXIT",
         "OUTPUT_FILE",
         "PERFECT",
-        "ALGO",
-        "SEED"
     ]
 
     for key in required:
@@ -617,18 +613,28 @@ def parse_config(filename: str) -> Dict[str, Any]:
     height = int(config["HEIGHT"])
     entry_x, entry_y = map(int, config["ENTRY"].split(","))
     exit_x, exit_y = map(int, config["EXIT"].split(","))
-    perfect = config["PERFECT"].lower() == "true"
+    perfect = config["PERFECT"].lower()
     output_file = config["OUTPUT_FILE"]
-    algo = config["ALGO"]
-    seed = int(config["SEED"])
+    if "ALGO" not in config.keys():
+        algo = "DFS"
+    else:
+        algo = config["ALGO"]
+    if "SEED" not in config.keys():
+        seed = None
+    else:
+        try:
+            seed = int(config["SEED"])
+        except Exception:
+            seed = None
     if width <= 0 or height <= 0:
         raise ValueError("WIDTH and HEIGHT must be positive greater then 0.")
     if not (0 <= entry_x < width and 0 <= entry_y < height):
         raise ValueError("ENTRY out of bounds")
     if not (0 <= exit_x < width and 0 <= exit_y < height):
         raise ValueError("EXIT out of bounds")
-    if algo not in ['DFS', 'PRIME']:
-        raise ValueError("choose one algo between DFS or PRIME.")
+    if perfect not in ['true', 'false']:
+        raise ValueError("Perfect should be True or False.")
+
     if entry_x == exit_x and entry_y == exit_y:
         raise TypeError(
             "Entry and Exit must be separated or make the maze abit bigger")
@@ -690,11 +696,38 @@ def main(stdscr: curses.window) -> None:
     solution = None
     show_solution = True
     stdscr.clear()
-    maze = Maze(height, width, entry, exit_point, perfect)
+    maze = Maze(height, width, entry, exit_point)
+    exit_x = exit_point[1]
+    exit_y = exit_point[0]
+    if maze.cells[exit_y][exit_x].logo:
+        raise ValueError("Ba3ad exit mn logo please!")
     maze.display(stdscr, maze_color)
+    if seed is not None:
+        random.seed(seed)
+    if (algo == "DFS"):
+        maze = Maze(
+                height,
+                width,
+                entry,
+                exit_point)
+        maze.dfs(stdscr, entry[0], entry[1], maze_color)
+    elif (algo == "PRIME"):
+        maze = Maze(
+                height,
+                width,
+                entry,
+                exit_point)
+        maze.prime(stdscr, entry[0], entry[1], maze_color)
+    if perfect == "false":
+        maze.make_it_imperfect(stdscr, maze_color)
+    
+    solution = maze.bfs_solver(entry, exit_point)
+    create_output_file(output_file, maze.cells, entry,
+                               exit_point, solution)
+
     while True:
         stdscr.addstr(height * 2 + 2, 0, "===========A_MAZ_ING========")
-        stdscr.addstr(height * 2 + 3, 0, "1. Generate/Re-generate a new maze")
+        stdscr.addstr(height * 2 + 3, 0, "1. Re-generate a new maze")
         stdscr.addstr(height * 2 + 4, 0, "2. Show/Hide solution")
         stdscr.addstr(height * 2 + 5, 0, "3. Change maze's colors")
         stdscr.addstr(height * 2 + 6, 0, "4. Quit")
@@ -704,25 +737,23 @@ def main(stdscr: curses.window) -> None:
             choice = stdscr.getch()
             if choice == ord('1'):
                 # stdscr.clear()
-                if seed:
+                if seed is not None:
                     random.seed(seed)
                 if (algo == "DFS"):
                     maze = Maze(
                             height,
                             width,
                             entry,
-                            exit_point,
-                            perfect)
+                            exit_point)
                     maze.dfs(stdscr, entry[0], entry[1], maze_color)
                 elif (algo == "PRIME"):
                     maze = Maze(
                             height,
                             width,
                             entry,
-                            exit_point,
-                            perfect)
+                            exit_point)
                     maze.prime(stdscr, entry[0], entry[1], maze_color)
-                if not perfect:
+                if perfect == "false":
                     maze.make_it_imperfect(stdscr, maze_color)
 
             elif choice == ord('2'):
@@ -764,3 +795,5 @@ if __name__ == "__main__":
         print(f'Error they said : {str(e)}')
     except curses.error as e:
         print(f"Error they said hello : {str(e)}")
+    except Exception as e:
+        print(e)
