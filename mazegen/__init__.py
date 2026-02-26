@@ -5,6 +5,8 @@ without any display dependency.
 """
 
 from mazegen.mazegen import MazeGenerator
+from mazegen.mazegen import Cell
 
-__all__ = ["MazeGenerator"]
+__all__ = ["MazeGenerator", "Cell"]
+__author__ = "zhaouzan, abchahid"
 __version__ = "0.1.0"

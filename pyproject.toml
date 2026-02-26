@@ -1,15 +1,13 @@
 [project]
 name = "mazegen"
 version = "0.1.0"
-readme= "README.md"
-description = "A standalone maze generator and solver."
+description = "Maze Generator generate a maze with dfs or Prime."
 authors = [
-    {name = "zhaouzan, abchahid"}
+    {name = "zhaouzan,abchahid"}
 ]
+readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "flake8 (>=7.3.0,<8.0.0)",
-    "mypy (>=1.19.1,<2.0.0)"
 ]
 
 

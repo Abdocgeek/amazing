@@ -10,7 +10,6 @@ debug:
 	python -m pudb a_maze_ing.py config.txt
 
 clean:
-	find . -type f -name '*.pyc' -delete
 	find . -type d -name '__pycache__' -exec rm -rf {} +
 	find . -type d -name '.mypy_cache' -exec rm -rf {} +
 
