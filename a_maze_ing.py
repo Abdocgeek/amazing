@@ -125,7 +125,8 @@ def main(stdscr: curses.window) -> None:
 
             elif choice == ord('3'):
                 rndm = random.randint(1, 6)
-                maze.maze_color = maze_colors[str(rndm)]
+                maze_color = maze_colors[str(rndm)]
+                maze.maze_color = maze_color
                 maze.display(stdscr)
 
             elif choice == ord('4'):
