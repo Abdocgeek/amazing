@@ -2,6 +2,7 @@
 
 install:
 	pip install -r requirements.txt
+	pip install mazegen.tar.gz  
 
 run:
 	python a_maze_ing.py config.txt
