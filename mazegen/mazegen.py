@@ -194,7 +194,8 @@ class MazeGenerator:
             width: int,
             entry: Tuple[int, int],
             exit: Tuple[int, int],
-            perfect: bool
+            perfect: bool,
+            maze_color: Dict[str, int] = None
             ) -> None:
         """Initialize a maze with given dimensions.
 
@@ -203,7 +204,10 @@ class MazeGenerator:
             width:  Number of cells in horizontal direction.
             entry:  Entry point.
             exit:   Exit point.
-            perfect:True means the maze has one solution.
+            perfect: True means the maze has one solution.
+            maze_color: Dict containing the colors needed for drawing the maze
+                        Example : {'Walls': 1, 'Logo': 2, 'Solution': 6,
+                               'Entry': 3, 'Exit': 5}
         """
         self.width = width
         self.height = height
@@ -212,6 +216,11 @@ class MazeGenerator:
         self.visited_count = 0
         self.perfect = perfect
         self.cells_count = width * height
+        if maze_color is None:
+            self.maze_color = {'Walls': 1, 'Logo': 2, 'Solution': 6,
+                               'Entry': 3, 'Exit': 5}
+        else:
+            self.maze_color = maze_color
         self.cells: List[List[Cell]] = [
                 [
                     Cell(
@@ -228,7 +237,6 @@ class MazeGenerator:
                     ]
                 for y in range(height)
                 ]
-        # [[None for x in range(width)] for y in range(height)]
         self.generate_maze()
         if width >= 9 and height >= 7:
             self.declare_logo()
@@ -244,7 +252,6 @@ class MazeGenerator:
         """
         x = 0
         y = 0
-        # self.cells: list[list[Cell]] = []
         for y in range(self.height):
             for x in range(self.width):
                 limits = {
@@ -261,7 +268,6 @@ class MazeGenerator:
             self,
             stdscr: curses.window,
             path: List[Tuple[int, int]],
-            maze_color: Dict[str, int],
             show: bool
             ) -> None:
         """ Make in the path available in the map curses
@@ -276,14 +282,14 @@ class MazeGenerator:
                 nx = place[1]
                 ny = place[0]
                 self.cells[ny][nx].solution = True
-                self.display(stdscr, maze_color)
+                self.display(stdscr)
                 time.sleep(0.01)
         else:
             for place in path:
                 nx = place[1]
                 ny = place[0]
                 self.cells[ny][nx].solution = False
-            self.display(stdscr, maze_color)
+            self.display(stdscr)
 
     def bfs_solver(
             self,
@@ -390,12 +396,11 @@ class MazeGenerator:
         self.cells[y][x + 5].logo = True
         self.cells[y][x + 4].logo = True
 
-    def dfs(
+    def dfs_algo(
             self,
             stdscr: curses.window,
             y: int,
-            x: int,
-            maze_color: Dict[str, int]) -> None:
+            x: int) -> None:
         """Generate maze paths using depth-first search algorithm.
 
         Recursively visits unvisited neighboring cells, removing walls between
@@ -446,27 +451,45 @@ class MazeGenerator:
             self.cells[ny][nx].visited = True
             self.visited_count += 1
             stdscr.refresh()
-            self.display(stdscr, maze_color)
+            self.display(stdscr)
             time.sleep(0.01)
 
             if self.visited_count < self.cells_count:
-                self.dfs(stdscr, ny, nx, maze_color)
+                self.dfs_algo(stdscr, ny, nx)
+
+    def dfs(
+        self,
+        stdscr: curses.window,
+        y: int,
+            x: int) -> None:
+
+        """Generate maze paths using depth-first search algorithm.
+
+        Recursively visits unvisited neighboring cells, removing walls between
+        them to create maze passages. The algorithm avoids logo cells and
+        visualizes the generation process.
+
+        Args:
+            stdscr: Curses window object for display.
+            y: Current row position.
+            x: Current column position.
+        """
+
+        self.dfs_algo(stdscr, y, x)
         if not self.perfect:
-            self.make_it_imperfect(stdscr, maze_color)
+            self.make_it_imperfect(stdscr)
 
     def prime(
             self,
             stdscr: curses.window,
             y: int,
-            x: int,
-            maze_color: Dict[str, int]) -> None:
+            x: int) -> None:
         """Generate a maze using prime algo
 
         Args:
             stdscr: Curses window object for display.
             y: Starting row position.
             x: Starting column position.
-            maze_color: Color mapping dict.
 
         """
         choices = set()
@@ -505,24 +528,22 @@ class MazeGenerator:
                 self.cells[ny][nx].visited = True
                 self.visited_count += 1
                 stdscr.refresh()
-                self.display(stdscr, maze_color)
+                self.display(stdscr)
                 x = nx
                 y = ny
                 time.sleep(0.01)
             else:
-                return
+                break
         if not self.perfect:
-            self.make_it_imperfect(stdscr, maze_color)
+            self.make_it_imperfect(stdscr)
 
     def make_it_imperfect(
             self,
-            stdscr: curses.window,
-            maze_color: Dict[str, int]) -> None:
+            stdscr: curses.window) -> None:
         """Remove extra walls to create an imperfect maze (multiple paths).
 
         Args:
             stdscr: Curses window object for display.
-            maze_color: Color mapping dict.
         """
         for y in range(self.height):
             for x in range(self.width):
@@ -549,12 +570,11 @@ class MazeGenerator:
                         self.cells[y][x].walls['L'] = False
                         self.cells[y][x - 1].walls['R'] = False
 
-                    self.display(stdscr, maze_color)
+                    self.display(stdscr)
 
     def display(
             self,
-            stdscr: curses.window,
-            maze_color: Dict[str, int]) -> None:
+            stdscr: curses.window) -> None:
         """Display the current state of the maze.
 
         Clears the screen and redraws all cells in the maze with their
@@ -562,9 +582,8 @@ class MazeGenerator:
 
         Args:
             stdscr: Curses window object for display.
-            maze_color: Color mapping world.
         """
-        # stdscr.clear()
+
         for row in self.cells:
             for cell in row:
                 cell.draw(
@@ -574,7 +593,7 @@ class MazeGenerator:
                         self.height,
                         self.entry,
                         self.exit,
-                        maze_color
+                        self.maze_color
                         )
 
         stdscr.refresh()
