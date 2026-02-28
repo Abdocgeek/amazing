@@ -230,8 +230,11 @@ class Maze:
                 ]
         # [[None for x in range(width)] for y in range(height)]
         self.generate_maze()
-        if width >= 7 and height >= 7:
+        if width >= 9 and height >= 7:
             self.declare_logo()
+        else:
+            raise ValueError("Maze width and height isnt enough"
+                             "to show 42 logo")
 
     def generate_maze(self) -> None:
         """Generate the initial maze grid with all walls intact.
@@ -708,9 +711,22 @@ def main(stdscr: curses.window) -> None:
     maze = Maze(height, width, entry, exit_point)
     exit_x = exit_point[1]
     exit_y = exit_point[0]
+    entry_x = entry[1]
+    entry_y = entry[0]
     if maze.cells[exit_y][exit_x].logo:
         raise ValueError("Ba3ad exit mn logo please!")
+    if maze.cells[entry_y][entry_x].logo:
+        raise ValueError("Ba3ad entry mn logo please!")
+
     maze.display(stdscr, maze_color)
+
+    stdscr.addstr(height * 2 + 2, 0, "===========A_MAZ_ING========")
+    stdscr.addstr(height * 2 + 3, 0, "1. Re-generate a new maze")
+    stdscr.addstr(height * 2 + 4, 0, "2. Show/Hide solution")
+    stdscr.addstr(height * 2 + 5, 0, "3. Change maze's colors")
+    stdscr.addstr(height * 2 + 6, 0, "4. Quit")
+    stdscr.refresh()
+
     if seed is not None:
         random.seed(seed)
     if (algo == "DFS"):
@@ -797,10 +813,10 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\nExited-_^.")
     except FileNotFoundError as e:
-        print(f"Error they said : {str(e)}")
+        print(f"Error: {str(e)}")
     except ValueError as e:
-        print(f'Error they said : {str(e)}')
-    except curses.error as e:
-        print(f"Error they said hello : {str(e)}")
-    except Exception as e:
-        print(e)
+        print(f'Error: {str(e)}')
+    except curses.error:
+        print("Error: Screen size is not enough!")
+    # except Exception as e:
+    #     print(e)
