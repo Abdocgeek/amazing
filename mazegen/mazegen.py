@@ -195,7 +195,7 @@ class MazeGenerator:
             entry: Tuple[int, int],
             exit: Tuple[int, int],
             perfect: bool,
-            maze_color: Dict[str, int] = None
+            maze_color: Dict[str, int] | None = None
             ) -> None:
         """Initialize a maze with given dimensions.
 

@@ -2,13 +2,12 @@
 
 install:
 	pip install -r requirements.txt
-	pip install mazegen.tar.gz  
 
 run:
 	python a_maze_ing.py config.txt
 
 debug:
-	python -m pudb a_maze_ing.py config.txt
+	python -m pdb a_maze_ing.py config.txt
 
 clean:
 	find . -type d -name '__pycache__' -exec rm -rf {} +

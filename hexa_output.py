@@ -6,7 +6,7 @@ Each cell maps to one hex character via the bitmask: T=1, R=2, B=4, L=8.
 from typing import TYPE_CHECKING, Iterable, Optional, Sequence, Tuple
 
 if TYPE_CHECKING:
-    from a_maze_ing import Cell
+    from mazegen.mazegen import Cell
 
 
 def create_output_file(

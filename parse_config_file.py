@@ -46,7 +46,7 @@ def parse_config(filename: str) -> Dict[str, Any]:
     height = int(config["HEIGHT"])
     entry_x, entry_y = map(int, config["ENTRY"].split(","))
     exit_x, exit_y = map(int, config["EXIT"].split(","))
-    perfect = config["PERFECT"]
+    perfect: str | bool = config["PERFECT"]
     output_file = config["OUTPUT_FILE"]
     tmp_file = output_file.split(".", 1)
     if (len(tmp_file) != 2 or tmp_file[1] != "txt"):
