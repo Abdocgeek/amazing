@@ -403,7 +403,7 @@ class MazeGenerator:
             x: int) -> None:
         """Generate maze paths using depth-first search algorithm.
 
-        Recursively visits unvisited neighboring cells, removing walls between
+        Iterativly visits unvisited neighboring cells, removing walls between
         them to create maze passages. The algorithm avoids logo cells and
         visualizes the generation process.
 
@@ -413,49 +413,56 @@ class MazeGenerator:
             x: Current column position.
         """
 
-        choices = []
-        if (x + 1 < self.width and not self.cells[y][x + 1].visited
-                and not self.cells[y][x + 1].logo):
-            choices.append((y, x + 1))
-        if (y + 1 < self.height and not self.cells[y + 1][x].visited
-                and not self.cells[y + 1][x].logo):
-            choices.append((y + 1, x))
-        if (y - 1 >= 0 and not self.cells[y - 1][x].visited
-                and not self.cells[y - 1][x].logo):
-            choices.append((y - 1, x))
-        if (x - 1 >= 0 and not self.cells[y][x - 1].visited
-                and not self.cells[y][x - 1].logo):
-            choices.append((y, x - 1))
-        if not choices:
-            return
+        stack: List[Tuple[int, int]] = [(y, x)]
 
-        random.shuffle(choices)
+        while stack:
+            cy, cx = stack[-1]
 
-        for i in range(len(choices)):
-            ny, nx = choices[i]
-            if self.cells[ny][nx].visited:
+            choices = []
+            if (cx + 1 < self.width
+                    and not self.cells[cy][cx + 1].visited
+                    and not self.cells[cy][cx + 1].logo):
+                choices.append((cy, cx + 1))
+            if (cy + 1 < self.height
+                    and not self.cells[cy + 1][cx].visited
+                    and not self.cells[cy + 1][cx].logo):
+                choices.append((cy + 1, cx))
+            if (cy - 1 >= 0
+                    and not self.cells[cy - 1][cx].visited
+                    and not self.cells[cy - 1][cx].logo):
+                choices.append((cy - 1, cx))
+            if (cx - 1 >= 0
+                    and not self.cells[cy][cx - 1].visited
+                    and not self.cells[cy][cx - 1].logo):
+                choices.append((cy, cx - 1))
+
+            if not choices:
+                stack.pop()
                 continue
-            if ny - y > 0:
+
+            random.shuffle(choices)
+            ny, nx = choices[0]
+
+            if ny - cy > 0:
                 self.cells[ny][nx].walls["T"] = False
-                self.cells[y][x].walls["B"] = False
-            if nx - x > 0:
-                self.cells[ny][nx].walls["L"] = False
-                self.cells[y][x].walls["R"] = False
-            if nx - x < 0:
-                self.cells[ny][nx].walls["R"] = False
-                self.cells[y][x].walls["L"] = False
-            if ny - y < 0:
+                self.cells[cy][cx].walls["B"] = False
+            elif ny - cy < 0:
                 self.cells[ny][nx].walls["B"] = False
-                self.cells[y][x].walls["T"] = False
+                self.cells[cy][cx].walls["T"] = False
+            elif nx - cx > 0:
+                self.cells[ny][nx].walls["L"] = False
+                self.cells[cy][cx].walls["R"] = False
+            elif nx - cx < 0:
+                self.cells[ny][nx].walls["R"] = False
+                self.cells[cy][cx].walls["L"] = False
 
             self.cells[ny][nx].visited = True
             self.visited_count += 1
-            stdscr.refresh()
             self.display(stdscr)
+            stdscr.refresh()
             time.sleep(0.01)
 
-            if self.visited_count < self.cells_count:
-                self.dfs_algo(stdscr, ny, nx)
+            stack.append((ny, nx))
 
     def dfs(
         self,

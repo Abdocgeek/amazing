@@ -32,6 +32,7 @@ def main(stdscr: curses.window) -> None:
     Args:
         stdscr: Curses window object provided by curses.wrapper.
     """
+
     file = sys.argv
     conf = parse_config(file[1])
     entry = conf["entry"]

@@ -1,9 +1,9 @@
 [project]
 name = "mazegen"
 version = "0.1.0"
-description = "Maze Generator generate a maze with dfs or Prime."
+description = "Maze Generator generate a maze with dfs or Prime, and solve it with bfs"
 authors = [
-    {name = "zhaouzan,abchahid"}
+    {name = "zhaouzan, abchahid"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"

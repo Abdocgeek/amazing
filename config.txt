@@ -1,9 +1,9 @@
 # Maze configuration
 
-WIDTH=90
-HEIGHT=100
-ENTRY=0,0
-EXIT=7,7
+WIDTH=13
+HEIGHT=12
+ENTRY=9,9
+EXIT=1,11
 OUTPUT_FILE=output_maze.txt
 PERFECT=False
 ALGO=DFS
